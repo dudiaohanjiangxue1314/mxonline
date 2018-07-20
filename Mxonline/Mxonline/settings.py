@@ -79,7 +79,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Mxonline.wsgi.application'
+# 设置邮箱和用户名均可登录
+AUTHENTICATION_BACKENDS = (
+    'users.views.CustomBackend',
 
+)
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
