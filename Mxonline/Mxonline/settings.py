@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -148,6 +149,11 @@ EMAIL_HOST_USER = "pythonceshihaha@sina.com"
 EMAIL_HOST_PASSWORD = "1Qaz2Wsx"
 EMAIL_USE_TLS = True
 EMAIL_FROM = "pythonceshihaha@sina.com"
+
+# 设置我们上传文件的路径
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
