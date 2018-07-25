@@ -42,6 +42,6 @@ urlpatterns = [
     # 课程机构首页url
     path('org_list/', OrgView.as_view(), name="org_list"),
     # 处理图片显示的url,使用Django自带serve,传入参数告诉它去哪个路径找，我们有配置好的路径MEDIAROOT
-    re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT })
+    re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT }),
 
 ]

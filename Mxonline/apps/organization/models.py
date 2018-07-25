@@ -35,6 +35,10 @@ class CourseOrg(models.Model):
     category = models.CharField(max_length=20, choices=ORG_CHOICES, verbose_name=u"机构类别", default="pxjg")
     click_nums = models.IntegerField(default=0, verbose_name=u"点击数")
     fav_nums = models.IntegerField(default=0, verbose_name=u"收藏数")
+    # 当学生点击学习课程，找到所属机构，学习人数加1
+    students = models.IntegerField(default=0, verbose_name=u"学习人数")
+    # 当发布课程就加1
+    course_nums = models.IntegerField(default=0, verbose_name=u"课程数")
     image = models.ImageField(
         upload_to="org/%Y/%m",
         verbose_name=u"logo",
