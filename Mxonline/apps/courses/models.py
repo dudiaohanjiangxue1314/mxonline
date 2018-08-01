@@ -2,6 +2,8 @@
 from datetime import datetime
 
 from django.db import models
+from organization.models import CourseOrg
+
 
 # Create your models here.
 class Course(models.Model):
@@ -12,6 +14,8 @@ class Course(models.Model):
     )
     name = models.CharField(max_length=50, verbose_name=u"课程名")
     desc = models.CharField(max_length=300, verbose_name=u"课程描述")
+    # 添加课程所属机构
+    course_org = models.ForeignKey(CourseOrg,on_delete=models.CASCADE, verbose_name=u"所属机构",null=True,blank=True)
     # TextField允许我们不输入长度。可以输入到无限大。暂时定义为TextFiled，之后更新为富文本
     detail = models.TextField(verbose_name=u"课程详情")
     degree = models.CharField(choices=DEGREE_CHOICES, max_length=2,verbose_name=u'难度')
@@ -27,7 +31,6 @@ class Course(models.Model):
     # 保存点击量，点进页面就算
     click_nums = models.IntegerField(default=0, verbose_name=u"点击数")
     add_time = models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
-
 
     class Meta:
         verbose_name = u"课程"

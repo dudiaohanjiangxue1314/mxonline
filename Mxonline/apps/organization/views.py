@@ -5,6 +5,7 @@ from .models import CourseOrg,CityDict
 from pure_pagination import Paginator,EmptyPage,PageNotAnInteger
 from .forms import UserAskForm
 from django.http import HttpResponse
+from courses.models import CourseOrg
 # Create your views here.
 
 
@@ -84,3 +85,78 @@ class AddUserAskView(View):
         # 如果保存失败，返回json字符串,并将form的报错信息通过msg传递到前端
         else:
             return HttpResponse('{"status":"fail", "msg":"您的字段有错误,请检查"}', content_type='application/json')
+
+
+class OrgHomeView(View):
+    """
+   机构首页
+    """
+    def get(self, request, org_id):
+        # 根据id取到课程机构
+        course_org = CourseOrg.objects.get(id=int(org_id))
+        # 向前端传值，表明现在在home页
+        current_page = "home"
+        # 通过课程机构找到课程。内建的变量，找到指向这个字段的外键引用
+        all_courses = course_org.course_set.all()[:4]
+        all_teacher = course_org.teacher_set.all()[:2]
+
+        return render(request, 'org-detail-homepage.html',{
+            'all_courses':all_courses,
+            'all_teacher':all_teacher,
+            'course_org':course_org,
+            'current_page':current_page,
+        })
+
+
+class OrgCourseView(View):
+    """
+   机构课程列表页
+    """
+
+    def get(self, request, org_id):
+        # 根据id取到课程机构
+        course_org = CourseOrg.objects.get(id=int(org_id))
+        current_page = "course"
+        # 通过课程机构找到课程。内建的变量，找到指向这个字段的外键引用
+        all_courses = course_org.course_set.all()
+
+        return render(request, 'org-detail-course.html', {
+            'all_courses': all_courses,
+            'course_org': course_org,
+            'current_page':current_page,
+        })
+
+class OrgDescView(View):
+    """
+   机构描述详情页
+    """
+    def get(self, request, org_id):
+        # 向前端传值，表明现在在home页
+        current_page = "desc"
+        # 根据id取到课程机构
+        course_org = CourseOrg.objects.get(id= int(org_id))
+
+        return render(request, 'org-detail-desc.html',{
+            'course_org': course_org,
+            "current_page":current_page,
+        })
+
+
+class OrgTeacherView(View):
+    """
+   机构讲师列表页
+    """
+    def get(self, request, org_id):
+        # 向前端传值，表明现在在home页
+        current_page = "teacher"
+        # 根据id取到课程机构
+        course_org = CourseOrg.objects.get(id= int(org_id))
+        # 通过课程机构找到课程。内建的变量，找到指向这个字段的外键引用
+        all_teachers = course_org.teacher_set.all()
+
+        return render(request, 'org-detail-teachers.html',{
+           'all_teachers':all_teachers,
+            'course_org': course_org,
+            "current_page":current_page,
+        })
+
