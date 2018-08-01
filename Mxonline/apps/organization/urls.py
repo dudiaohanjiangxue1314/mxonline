@@ -1,5 +1,5 @@
 #encoding:utf-8
-from organization.views import OrgView,AddUserAskView,OrgHomeView,OrgCourseView,OrgDescView,OrgTeacherView
+from organization.views import OrgView,AddUserAskView,OrgHomeView,OrgCourseView,OrgDescView,OrgTeacherView,AddFavView
 from django.urls import path ,re_path
 
 __author__ = 'mtianyan'
@@ -19,5 +19,7 @@ urlpatterns = [
 
     # 访问机构讲师
     re_path('teacher/(?P<org_id>\d+)/', OrgTeacherView.as_view(), name="org_teacher"),
+    # 机构收藏
+    path('add_fav/', AddFavView.as_view(), name="add_fav"),
 
 ]
