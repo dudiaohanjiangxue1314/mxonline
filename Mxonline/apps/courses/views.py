@@ -1,7 +1,7 @@
 #coding=utf-8
 from django.shortcuts import render
 from django.views.generic.base import View
-from .models import Course
+from .models import Course,CourseResource
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 from operation.models import UserFavorite, CourseComments, UserCourse
 # Create your views here.
@@ -69,4 +69,18 @@ class CourseDetailView(View):
             "has_fav_course": has_fav_course,
             "has_fav_org": has_fav_org,
 
+        })
+
+
+# 处理课程章节信息页面的view
+class CourseInfoView(View):
+    def get(self, request, course_id):
+        # 此处的id为表默认为我们添加的值。
+        course = Course.objects.get(id=int(course_id))
+        # 查询课程资源
+        all_resources = CourseResource.objects.filter(course=course)
+        # 是否收藏课程
+        return render(request, "course-video.html", {
+            "course": course,
+            'all_resources':all_resources,
         })

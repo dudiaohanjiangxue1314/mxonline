@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from django.db import models
-from organization.models import CourseOrg
+from organization.models import CourseOrg,Teacher
 
 
 # Create your models here.
@@ -18,12 +18,15 @@ class Course(models.Model):
     course_org = models.ForeignKey(CourseOrg,on_delete=models.CASCADE, verbose_name=u"所属机构",null=True,blank=True)
     # TextField允许我们不输入长度。可以输入到无限大。暂时定义为TextFiled，之后更新为富文本
     detail = models.TextField(verbose_name=u"课程详情")
+    teacher = models.ForeignKey(Teacher,verbose_name=u"讲师", null=True, blank=True,on_delete=models.CASCADE)
     degree = models.CharField(choices=DEGREE_CHOICES, max_length=2,verbose_name=u'难度')
     # 使用分钟做后台记录(存储最小单位)前台转换
     learn_times = models.IntegerField(default=0, verbose_name=u"学习时长(分钟数)")
     # 保存学习人数:点击开始学习才算
     students = models.IntegerField(default=0, verbose_name=u"学习人数")
     fav_nums = models.IntegerField(default=0, verbose_name=u"收藏人数")
+    you_need_know = models.CharField(max_length=300, default="", verbose_name=u"课程须知")
+    teacher_tell = models.CharField(max_length=300, default="", verbose_name=u"老师告诉你")
     image = models.ImageField(
         upload_to="courses/%Y/%m",
         verbose_name=u"封面图",
@@ -48,6 +51,10 @@ class Course(models.Model):
         # 谁的里面添加了它做外键，他都可以取出来
         return self.usercourse_set.all()[:5]
 
+    # 获取课程所有章节
+    def get_course_lesson(self):
+        return self.lesson_set.all()
+
     def __str__(self):
         return self.name
 
@@ -63,14 +70,21 @@ class Lesson(models.Model):
         verbose_name = u"章节"
         verbose_name_plural = verbose_name
 
+    # 获取章节视频
+    def get_lesson_video(self):
+        return self.video_set.all()
+
     def __str__(self):
         return '《{0}》课程的章节 >> {1}'.format(self.course,self.name)
+
 
 # 每章视频
 class Video(models.Model):
     # 因为一个章节对应很多视频。所以在视频表中将章节设置为外键。
     # 作为一个字段来存储让我们可以知道这个视频对应哪个章节.
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE,verbose_name=u"章节")
+    url = models.CharField(max_length=200, default="", verbose_name=u"访问地址")
+    learn_times = models.IntegerField(default=0, verbose_name=u"学习时长(分钟数)")
     name = models.CharField(max_length=100, verbose_name=u"视频名")
     add_time = models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
 
@@ -79,7 +93,7 @@ class Video(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return self.lesson
+        return self.name
 
 
 # 课程资源
@@ -101,5 +115,5 @@ class CourseResource(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return self.course
+        return self.name
 
