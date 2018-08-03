@@ -10,7 +10,7 @@
 				<li><a href="{% url 'index' %}">首页</a>></li>
                 <li><a href="{% url 'course:list' %}">公开课程</a>></li>
 				<li><a href="{% url 'course:course_detail' course.id %}">{{ course.name }}</a>></li>
-                <li>章节信息</li>
+                <li>{% block xiaobiaoti %}章节信息{% endblock %}</li>
 			</ul>
 		</div>
 	</div>
@@ -57,11 +57,12 @@
 
         <div class="info-bar clearfix">
         <div class="content-wrap clearfix">
+            {% block content-middle %}
             <div class="content">
                 <div class="mod-tab-menu">
                     <ul class="course-menu clearfix">
-                        <li><a class="ui-tabs-active active" id="learnOn"  href="course-video.html"><span>章节</span></a></li>
-                        <li><a id="commentOn" class="" href="course-comment.html"><span>评论</span></a></li>
+                        <li><a class="ui-tabs-active active" id="learnOn"  href="{% url 'course:course_info' course.id %}"><span>章节</span></a></li>
+                        <li><a id="commentOn" class="" href="{% url 'course:course_comments' course.id %}"><span>评论</span></a></li>
                     </ul>
                 </div>
                 <div id="notice" class="clearfix">
@@ -91,6 +92,8 @@
                 </div>
 
             </div>
+            {% endblock %}
+
             <div class="aside r">
                 <div class="bd">
 
