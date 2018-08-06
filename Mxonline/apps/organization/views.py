@@ -1,7 +1,7 @@
 #coding=utf-8
 from django.shortcuts import render
 from django.views.generic.base import View
-from .models import CourseOrg,CityDict
+from .models import CourseOrg,CityDict,Teacher
 from pure_pagination import Paginator,EmptyPage,PageNotAnInteger
 from .forms import UserAskForm
 from django.http import HttpResponse
@@ -221,3 +221,38 @@ class AddFavView(View):
                 return HttpResponse('{"status":"success", "msg":"已收藏"}', content_type='application/json')
             else:
                 return HttpResponse('{"status":"fail", "msg":"收藏出错"}', content_type='application/json')
+
+
+class TeacherListView(View):
+    """
+    课程讲师列表页
+    """
+
+    def get(self, request):
+        all_teacher = Teacher.objects.all()
+        sort = request.GET.get("sort", "")
+        if sort:
+            if sort == "hot":
+                all_teacher = all_teacher.order_by("-click_nums")
+        # 排行榜讲师
+        rank_teacher = Teacher.objects.all().order_by("-fav_nums")[:5]
+        # 总共有多少老师使用count进行统计
+        teacher_nums = all_teacher.count()
+        # 对讲师进行分页
+        # 尝试获取前台get请求传递过来的page参数
+        # 如果是不合法的配置参数默认返回第一页
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        # 这里指从allorg中取五个出来，每页显示5个
+        p = Paginator(all_teacher, 5, request=request)
+        teachers = p.page(page)
+        return render(request, "teachers-list.html", {
+            "all_teacher": teachers,
+            "teacher_nums": teacher_nums,
+            "sort": sort,
+            "rank_teachers": rank_teacher,
+
+        })
+
