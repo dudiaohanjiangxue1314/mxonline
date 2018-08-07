@@ -198,4 +198,12 @@ class ModifyPwdView(View):
                     "email": email, "modiypwd_form": modiypwd_form})
 
 
+# 用户个人信息
+class UserInfoView(View):
+    login_url = '/login/'
+    redirect_field_name = 'next'
 
+    def get(self, request):
+        return render(request, "usercenter-info.html", {
+
+        })
