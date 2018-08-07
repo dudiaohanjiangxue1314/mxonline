@@ -256,3 +256,29 @@ class TeacherListView(View):
 
         })
 
+
+class TeacherDetailView(View):
+    """
+    讲师详情页
+    """
+    def get(self, request, teacher_id):
+        teacher = Teacher.objects.get(id = int(teacher_id))
+        teacher.click_nums +=1
+        teacher.save()
+        all_course = teacher.course_set.all()
+        # 排行榜讲师
+        rank_teacher = Teacher.objects.all().order_by("-fav_nums")[:5]
+
+        has_fav_teacher = False
+        if UserFavorite.objects.filter(user=request.user, fav_type=3, fav_id= teacher.id):
+            has_fav_teacher = True
+        has_fav_org = False
+        if  UserFavorite.objects.filter(user=request.user, fav_type=2, fav_id= teacher.org.id):
+            has_fav_org = True
+        return render(request, "teacher-detail.html", {
+            "teacher":teacher,
+            "all_course":all_course,
+            "rank_teacher":rank_teacher,
+            "has_fav_teacher":has_fav_teacher,
+            "has_fav_org":has_fav_org,
+        })
