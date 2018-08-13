@@ -3,6 +3,7 @@ __author__ = 'mtianyan'
 __date__ = '2018/7/20 14:03'
 # 引入Django表单
 from  django import forms
+from  users.models import UserProfile
 # 引入验证码field
 from captcha.fields import CaptchaField
 
@@ -47,3 +48,13 @@ class ModifyPwdForm(forms.Form):
     password1 = forms.CharField(required=True, min_length=5)
     # 密码不能小于5位
     password2 = forms.CharField(required=True, min_length=5)
+
+
+# 用于文件上传，修改头像
+class UploadImageForm(forms.ModelForm):
+
+    class Meta:
+        model = UserProfile
+        fields = ['image']
+
+
