@@ -18,8 +18,15 @@ class UserProfile(AbstractUser):
     class Meta:
         verbose_name = "用户信息"
         verbose_name_plural = verbose_name
+
     def __str__(self):
         return self.username
+
+    # 获取用户未读消息的数量
+    def unread_nums(self):
+        # 一定要from放在此处，只有调用的时候才导入，如果放在头部，则会造成循环引用
+        from operation.models import UserMessage
+        return  UserMessage.objects.filter(has_read=False, user=self.id).count()
 
 
 class EmailVerifyRecord(models.Model):

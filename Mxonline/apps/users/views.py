@@ -1,5 +1,8 @@
 #coding=utf-8
 import json
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
+from operation.models import UserCourse,UserFavorite, UserMessage
+from organization.models import CourseOrg, Teacher
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.contrib.auth import  authenticate,login
@@ -7,6 +10,7 @@ from django.contrib.auth.backends import ModelBackend
 from .models import UserProfile,EmailVerifyRecord
 from .forms import LoginForm,RegisterForm,ForgetForm,ActiveForm,ModifyPwdForm,UploadImageForm,UserInfoForm
 from django.http import HttpResponseRedirect, HttpResponse
+from courses.models import Course
 # 并集运算
 from django.db.models import Q
 # 基于类实现需要继承的view
@@ -33,6 +37,7 @@ class CustomBackend(ModelBackend):
                 return user
         except Exception as e:
             return None
+
 
 #登录功能
 class LoginView(View):
@@ -73,8 +78,6 @@ class LoginView(View):
             return render(request,"login.html",{"login_form": login_form})
 
 
-
-
 # 注册功能的view
 class RegisterView(View):
     # get方法直接返回页面
@@ -82,6 +85,7 @@ class RegisterView(View):
         # 添加验证码
         register_form = RegisterForm()
         return render(request, "register.html", {'register_form':register_form})
+
     def post(self,request):
         register_form = RegisterForm(request.POST)
         if register_form.is_valid():
@@ -100,6 +104,11 @@ class RegisterView(View):
             # 加密password进行保存
             user_profile.password = make_password(pass_word)
             user_profile.save()
+            # 写入欢迎注册消息
+            user_message = UserMessage()
+            user_message.user = user_profile.id
+            user_message.message = "欢迎注册mtianyan慕学网!! --系统自动消息"
+            user_message.save()
             # 发送注册激活邮件
             send_register_email(user_name, "register")
             return render(request,'login.html')
@@ -321,5 +330,114 @@ class UpdateEmailView(LoginRequiredMixin, View):
         else:
             return HttpResponse('{"email":"验证码无效"}',content_type='application/json')
 
+
+class MyCourseView(LoginRequiredMixin, View):
+    """
+    个人中心页我的课程
+    """
+    login_url = '/login/'
+    redirect_field_name = 'next'
+
+    def get(self, request):
+        user_courses = UserCourse.objects.filter(user=request.user)
+        return render(request, "usercenter-mycourse.html", {
+            "user_courses":user_courses,
+        })
+
+
+class MyFavOrgView(LoginRequiredMixin, View):
+    """
+    我收藏的课程机构
+    """
+    login_url = '/login/'
+    redirect_field_name = 'next'
+
+    def get(self, request):
+        org_list = []
+        fav_orgs= UserFavorite.objects.filter(user=request.user, fav_type=2)
+        # 上面的fav_orgs只是存放了id。我们还需要通过id找到机构对象
+        for fav_org in fav_orgs:
+            # 取出fav_id也就是机构的id。
+            org_id = fav_org.fav_id
+            # 获取这个机构对象
+            org = CourseOrg.objects.get(id=org_id)
+            org_list.append(org)
+        return render(request, "usercenter-fav-org.html", {
+            "org_list": org_list,
+        })
+
+
+class MyFavTeacherView(LoginRequiredMixin, View):
+    """
+    我收藏的课程讲师
+    """
+    login_url = '/login/'
+    redirect_field_name = 'next'
+
+    def get(self, request):
+        teacher_list = []
+        fav_teachers= UserFavorite.objects.filter(user=request.user, fav_type=3)
+        # 上面的fav_orgs只是存放了id。我们还需要通过id找到机构对象
+        for fav_teacher in fav_teachers:
+            # 取出fav_id也就是机构的id。
+            teacher_id = fav_teacher.fav_id
+            # 获取这个机构对象
+            teacher = Teacher.objects.get(id=teacher_id)
+            teacher_list.append(teacher)
+        return render(request, "usercenter-fav-teacher.html", {
+            "teacher_list": teacher_list,
+        })
+
+
+class MyFavCourseView(LoginRequiredMixin, View):
+    """
+    我收藏的课程
+    """
+    login_url = '/login/'
+    redirect_field_name = 'next'
+
+    def get(self, request):
+        course_list = []
+        fav_courses = UserFavorite.objects.filter(user=request.user, fav_type=1)
+        # 上面的fav_orgs只是存放了id。我们还需要通过id找到机构对象
+        for fav_course in fav_courses:
+            # 取出fav_id也就是机构的id。
+            course_id = fav_course.fav_id
+            # 获取这个机构对象
+            course = Course.objects.get(id=course_id)
+            course_list.append(course)
+        return render(request, "usercenter-fav-course.html", {
+            "course_list": course_list,
+        })
+
+
+class MyMessageView(LoginRequiredMixin, View):
+    """
+    我的消息
+    """
+    login_url = '/login/'
+    redirect_field_name = 'next'
+
+    def get(self, request):
+        all_message = UserMessage.objects.filter(user= request.user.id)
+
+        # 用户进入个人中心消息页面，清空未读消息记录
+        all_unread_messages = UserMessage.objects.filter(user=request.user.id, has_read=False)
+        for unread_message in all_unread_messages:
+            unread_message.has_read = True
+            unread_message.save()
+        # 对课程机构进行分页
+        # 尝试获取前台get请求传递过来的page参数
+        # 如果是不合法的配置参数默认返回第一页
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        # 这里指从allorg中取五个出来，每页显示5个
+        p = Paginator(all_message, 4)
+        messages = p.page(page)
+        return  render(request, "usercenter-message.html", {
+        "messages":messages,
+        })
 
 

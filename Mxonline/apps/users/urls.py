@@ -2,7 +2,7 @@
 __author__ = 'mtianyan'
 __date__ = '2018/8/7 16:24'
 from django.urls import path ,re_path
-from .views import UserInfoView,UploadImageView,UpdatePwdView,SendEmailCodeView,UpdateEmailView
+from .views import UserInfoView,UploadImageView,UpdatePwdView,SendEmailCodeView,UpdateEmailView,MyCourseView,MyFavOrgView,MyFavTeacherView,MyFavCourseView,MyMessageView
 
 app_name = "users"
 urlpatterns = [
@@ -16,6 +16,16 @@ urlpatterns = [
     path('sendemail_code/', SendEmailCodeView.as_view(),name="sendemail_code"),
     # 修改邮箱
     path('update_email/', UpdateEmailView.as_view(), name="update_email"),
+    # 个人中心我的课程
+    path('mycourse/', MyCourseView.as_view(), name="mycourse"),
+    # 我收藏的课程机构
+    path('myfav/org/', MyFavOrgView.as_view(), name="myfav_org"),
+    # 我收藏的授课讲师
+    path('myfav/teacher/', MyFavTeacherView.as_view(), name="myfav_teacher"),
+    # 我收藏的课程
+    path('myfav/course/', MyFavCourseView.as_view(), name="myfav_course"),
+    # 我的消息
+    path('my_message/', MyMessageView.as_view(), name="my_message"),
 
 
 ]
