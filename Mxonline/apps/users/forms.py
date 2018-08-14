@@ -58,3 +58,9 @@ class UploadImageForm(forms.ModelForm):
         fields = ['image']
 
 
+# 用于个人中心修改个人信息
+class UserInfoForm(forms.ModelForm):
+
+    class Meta:
+        model = UserProfile
+        fields = ['nick_name','gender','birthday','address','mobile']
