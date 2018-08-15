@@ -5,11 +5,12 @@ from operation.models import UserCourse,UserFavorite, UserMessage
 from organization.models import CourseOrg, Teacher
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
-from django.contrib.auth import  authenticate,login
+from django.contrib.auth import  authenticate,login,logout
 from django.contrib.auth.backends import ModelBackend
 from .models import UserProfile,EmailVerifyRecord
 from .forms import LoginForm,RegisterForm,ForgetForm,ActiveForm,ModifyPwdForm,UploadImageForm,UserInfoForm
 from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
 from courses.models import Course
 # 并集运算
 from django.db.models import Q
@@ -39,10 +40,23 @@ class CustomBackend(ModelBackend):
             return None
 
 
+class LogoutView(View):
+    """
+    退出功能
+    """
+    def get(self, request):
+        # django自带的logout
+        logout(request)
+        # 重定向到首页,
+
+        return HttpResponseRedirect(reverse("index"))
+
+
 #登录功能
 class LoginView(View):
     def get(self,request):
         return render(request,'login.html',{})
+
     def post(self,request):
         # 类实例化需要一个字典参数dict:request.POST就是一个QueryDict所以直接传入
         # POST中的usernamepassword，会对应到form中
@@ -218,6 +232,7 @@ class UserInfoView(View):
         return render(request, "usercenter-info.html", {
 
         })
+
     def post(self, request):
         # 不像用户咨询是一个新的。需要指明instance。不然无法修改，而是新增用户
         user_info_form = UserInfoForm(request.POST, instance=request.user)

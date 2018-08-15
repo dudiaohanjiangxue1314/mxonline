@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path,include,re_path
 import xadmin
 from django.views.generic import TemplateView
-from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,ResetView,ModifyPwdView
+from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,ResetView,ModifyPwdView,LogoutView
 from organization.views import OrgView
 from django.views.static import serve
 from Mxonline.settings import MEDIA_ROOT
@@ -28,6 +28,8 @@ urlpatterns = [
     # path('login/', TemplateView.as_view(template_name="login.html"), name="login")，
     # 基于类方法实现登录,这里是调用它的方法,注意此处as_view必须要加括号
     path('login/',LoginView.as_view(),name='login'),
+    # 退出功能url
+    path('logout/', LogoutView.as_view(), name="logout"),
     path("register/", RegisterView.as_view(), name = "register"),
     # 验证码url
     path('captcha/',include('captcha.urls')),

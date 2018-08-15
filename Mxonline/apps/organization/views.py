@@ -72,6 +72,7 @@ class OrgView(View):
             "search_keywords": search_keywords,
         })
 
+
 # 用户添加我要学习
 class AddUserAskView(View):
     """
@@ -100,19 +101,21 @@ class OrgHomeView(View):
    机构首页
     """
     def get(self, request, org_id):
-        # 根据id取到课程机构
-        course_org = CourseOrg.objects.get(id=int(org_id))
         # 向前端传值，表明现在在home页
         current_page = "home"
-        # 通过课程机构找到课程。内建的变量，找到指向这个字段的外键引用
-        all_courses = course_org.course_set.all()[:4]
-        all_teacher = course_org.teacher_set.all()[:2]
+        # 根据id取到课程机构
+        course_org = CourseOrg.objects.get(id= int(org_id))
+        course_org.click_nums +=1
+        course_org.save()
         # 向前端传值说明用户是否收藏
         has_fav = False
         # 必须是用户已登录我们才需要判断。
         if request.user.is_authenticated:
             if UserFavorite.objects.filter(user=request.user, fav_id=course_org.id, fav_type=2):
                 has_fav = True
+        # 通过课程机构找到课程。内建的变量，找到指向这个字段的外键引用
+        all_courses = course_org.course_set.all()[:4]
+        all_teacher = course_org.teacher_set.all()[:2]
 
         return render(request, 'org-detail-homepage.html',{
             'all_courses':all_courses,
@@ -216,6 +219,24 @@ class AddFavView(View):
         if exist_records:
             # 如果记录已经存在， 则表示用户取消收藏
             exist_records.delete()
+            if int(type) == 1:
+                course = Course.objects.get(id=int(id))
+                course.fav_nums -= 1
+                if course.fav_nums < 0:
+                    course.fav_nums = 0
+                course.save()
+            elif int(type) == 2:
+                org = CourseOrg.objects.get(id=int(id))
+                org.fav_nums -= 1
+                if org.fav_nums < 0:
+                    org.fav_nums = 0
+                org.save()
+            elif int(type) == 3:
+                teacher = Teacher.objects.get(id=int(id))
+                teacher.fav_nums -= 1
+                if teacher.fav_nums < 0:
+                    teacher.fav_nums = 0
+                teacher.save()
             return HttpResponse('{"status":"success", "msg":"收藏"}', content_type='application/json')
         else:
             user_fav = UserFavorite()
@@ -225,6 +246,18 @@ class AddFavView(View):
                 user_fav.fav_type = int(type)
                 user_fav.user = request.user
                 user_fav.save()
+                if int(type) == 1:
+                    course = Course.objects.get(id=int(id))
+                    course.fav_nums += 1
+                    course.save()
+                elif int(type) == 2:
+                    org = CourseOrg.objects.get(id=int(id))
+                    org.fav_nums += 1
+                    org.save()
+                elif int(type) == 3:
+                    teacher = Teacher.objects.get(id=int(id))
+                    teacher.fav_nums += 1
+                    teacher.save()
                 return HttpResponse('{"status":"success", "msg":"已收藏"}', content_type='application/json')
             else:
                 return HttpResponse('{"status":"fail", "msg":"收藏出错"}', content_type='application/json')
