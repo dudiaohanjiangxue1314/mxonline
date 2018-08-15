@@ -19,6 +19,7 @@ from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
 # 发送邮件
 from utils.email_send import send_register_email
+from .models import Banner
 
 
 # Create your views here.
@@ -79,7 +80,7 @@ class LoginView(View):
                     # request是要render回去的。这些信息也就随着返回浏览器。完成登录
                     login(request, user)
                     # 跳转到首页 user request会被带回到首页
-                    return render(request, "index.html")
+                    return HttpResponseRedirect(reverse("index"))
                 #如果user.is_active为False，则表示用户未激活
                 else:
                     return render(request, "login.html", {"msg": "用户未激活！"})
@@ -456,3 +457,20 @@ class MyMessageView(LoginRequiredMixin, View):
         })
 
 
+# 首页view
+class IndexView(View):
+    def get(self,request):
+        # 取出轮播图
+        all_banner = Banner.objects.all().order_by('index')[:5]
+        # 正常位课程
+        courses = Course.objects.filter(is_banner=False)[:6]
+        # 轮播图课程取三个
+        banner_courses = Course.objects.filter(is_banner=True)[:3]
+        # 课程机构
+        course_orgs = CourseOrg.objects.all()[:15]
+        return render(request, 'index.html', {
+            "all_banner":all_banner,
+            "courses":courses,
+            "banner_courses":banner_courses,
+            "course_orgs":course_orgs,
+        })

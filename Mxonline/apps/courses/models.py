@@ -19,6 +19,7 @@ class Course(models.Model):
     # TextField允许我们不输入长度。可以输入到无限大。暂时定义为TextFiled，之后更新为富文本
     detail = models.TextField(verbose_name=u"课程详情")
     teacher = models.ForeignKey(Teacher,verbose_name=u"讲师", null=True, blank=True,on_delete=models.CASCADE)
+    is_banner = models.BooleanField(default=False, verbose_name=u"是否轮播")
     degree = models.CharField(choices=DEGREE_CHOICES, max_length=2,verbose_name=u'难度')
     # 使用分钟做后台记录(存储最小单位)前台转换
     learn_times = models.IntegerField(default=0, verbose_name=u"学习时长(分钟数)")

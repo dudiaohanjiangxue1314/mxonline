@@ -18,13 +18,14 @@ from django.urls import path,include,re_path
 import xadmin
 from django.views.generic import TemplateView
 from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,ResetView,ModifyPwdView,LogoutView
+from users.views import IndexView
 from organization.views import OrgView
 from django.views.static import serve
 from Mxonline.settings import MEDIA_ROOT
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
-    path('',TemplateView.as_view(template_name='index.html'),name='index'),
+    path('',IndexView.as_view(),name='index'),
     # path('login/', TemplateView.as_view(template_name="login.html"), name="login")，
     # 基于类方法实现登录,这里是调用它的方法,注意此处as_view必须要加括号
     path('login/',LoginView.as_view(),name='login'),
