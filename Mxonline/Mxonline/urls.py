@@ -19,6 +19,7 @@ import xadmin
 from django.views.generic import TemplateView
 from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,ResetView,ModifyPwdView,LogoutView
 from users.views import IndexView
+from users.views import page_error,page_not_found
 from organization.views import OrgView
 from django.views.static import serve
 from Mxonline.settings import MEDIA_ROOT
@@ -46,6 +47,7 @@ urlpatterns = [
     path("org/", include('organization.urls',namespace="org")),
     # 处理图片显示的url,使用Django自带serve,传入参数告诉它去哪个路径找，我们有配置好的路径MEDIAROOT
     re_path(r'^media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT }),
+    # re_path(r'^static/(?P<path>.*)', serve, {"document_root": STATIC_ROOT}),
     # 课程app的url配置
     path("course/", include('courses.urls', namespace="course")),
 
@@ -53,3 +55,6 @@ urlpatterns = [
     path("users/", include('users.urls', namespace="users")),
 
 ]
+# 全局404页面配置
+# handler404 = 'users.views.page_not_found'
+# handler500 = 'users.views.page_error'
